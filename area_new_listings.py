@@ -20,6 +20,7 @@ restaurants_done = []
 for link in restaurants_done_un:
 	restaurants_done.append(link.strip("\n"))
 
+restaurants_done_file = open("restaurants_done.txt","a+") 
 
 #DRIVER LOADED IN IMPORTS
 #CHECKS EVERY AREA'S 3 PAGES FOR NEW RESTAURANT SORTED NEW
@@ -48,94 +49,116 @@ for link in area_links:
 #loop
 print "FOUND "+str(len(this_run_new_links))+" RESTAURANTS"
 mail_sent = 0
-
+broken_links = 0
 for x in range(0,len(this_run_new_links)):
 
-
-	random_number_for_links_selection = random.randint(0,len(this_run_new_links)-1)
-	print random_number_for_links_selection
-	print len(this_run_new_links)
-	link_to_send = this_run_new_links[random_number_for_links_selection]
-
-	this_run_new_links.remove(link_to_send)
-
-	driver.get(link_to_send)
-	if "404" in driver.title:
-		print "broken link"
-		continue
-
-	rest_name = unicode(driver.find_elements_by_css_selector(".ui.large.header.left")[0].text).encode("utf-8")
-	print "NAME: ",rest_name,"\n"
-
-	rest_area = unicode(driver.find_elements_by_css_selector(".left.grey-text.fontsize3")[0].text).encode("utf-8")
-	print "AREA: ",rest_area,"\n"
-	
 	try:
-		rest_type_encoded = ((driver.find_elements_by_css_selector(".grey-text.fontsize3"))[1].text).encode("utf-8")
-		rest_type_decoded = rest_type_encoded.decode("utf-8")
-		rest_type = rest_type_decoded.encode("ascii","ignore")
+		random_number_for_links_selection = random.randint(0,len(this_run_new_links)-1)
+		print random_number_for_links_selection
+		print len(this_run_new_links)
+		link_to_send = this_run_new_links[random_number_for_links_selection]
 
-	except:
-		rest_type = "Maybe Delivery"	
-			
-	if "Caf" in rest_type:
-		rest_type = rest_type+"e"
-	print "TYPE:",rest_type,"\n"
-					
+		this_run_new_links.remove(link_to_send)
 
+		driver.get(link_to_send)
+		if "404" in driver.title:
+			print "broken link"
+			broken_links +=1
+			continue
 
-	rest_phno = unicode(driver.find_elements_by_css_selector(".fontsize2.bold.zgreen")[0].text).encode("utf-8")
-	print "PHONE NO: ",rest_phno,"\n"
+		rest_name = unicode(driver.find_elements_by_css_selector(".ui.large.header.left")[0].text).encode("utf-8")
+		print "NAME: ",rest_name,"\n"
 
-
-	try:
-		cost_for_two = int(driver.find_element_by_xpath("//div[1]/div/div[1]/div[3]/div[1]/div[1]/div[3]/div/div/span[2]").text.split(" for")[0].encode("ascii","ignore").replace(",",""))
-
-			
-	except:
+		rest_area = unicode(driver.find_elements_by_css_selector(".left.grey-text.fontsize3")[0].text).encode("utf-8")
+		print "AREA: ",rest_area,"\n"
+		
 		try:
-			cost_for_two = int(driver.find_element_by_xpath("//div[1]/div/div[1]/div[4]/div[1]/div[1]/div[3]/div/div/span[2]").text.split(" for")[0].encode("ascii","ignore").replace(",",""))
+			rest_type_encoded = ((driver.find_elements_by_css_selector(".grey-text.fontsize3"))[1].text).encode("utf-8")
+			rest_type_decoded = rest_type_encoded.decode("utf-8")
+			rest_type = rest_type_decoded.encode("ascii","ignore")
 
 		except:
+			rest_type = "Maybe Delivery"	
+				
+		if "Caf" in rest_type:
+			rest_type = rest_type+"e"
+		print "TYPE:",rest_type,"\n"
+						
+
+
+		rest_phno = unicode(driver.find_elements_by_css_selector(".fontsize2.bold.zgreen")[0].text).encode("ascii","ignore")
+		print "PHONE NO: ",rest_phno,"\n"
+
+
+		try:
+			cost_for_two = int(driver.find_element_by_xpath("//div[1]/div/div[1]/div[3]/div[1]/div[1]/div[3]/div/div/span[2]").text.split(" for")[0].encode("ascii","ignore").replace(",",""))
+
+				
+		except:
 			try:
-				cost_for_two = int(driver.find_element_by_xpath("//div[1]/div/div[1]/div[3]/div[1]/div[1]/div[3]/div/div/span[2]").text.split(" for")[0].encode("ascii","ignore").replace(",",""))
+				cost_for_two = int(driver.find_element_by_xpath("//div[1]/div/div[1]/div[4]/div[1]/div[1]/div[3]/div/div/span[2]").text.split(" for")[0].encode("ascii","ignore").replace(",",""))
+
 			except:
-				pass
+				try:
+					cost_for_two = int(driver.find_element_by_xpath("//div[1]/div/div[1]/div[3]/div[1]/div[1]/div[3]/div/div/span[2]").text.split(" for")[0].encode("ascii","ignore").replace(",",""))
+				except:
+					pass
 
-	print "Cost for Two: ",cost_for_two,"\n"
-	
+		print "Cost for Two: ",cost_for_two,"\n"
+		
 
-	print "x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x"	
-	
+		print "x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x-x"	
+		
 
 
-	#try:
-		#driver.find_element_by_css_selector(".opening-soon-label.res-notification-label.ui.big.yellow.label.ml0")
+		# try:
+		# 	driver.find_element_by_css_selector(".opening-soon-label.res-notification-label.ui.big.yellow.label.ml0")
+		# 	pass
+		mail_body = "\n\n\n"	+"Name: "+rest_name+"\n"	+"Area: "+rest_area+"\n"	+"Type: "+rest_type+"\n"	+"Phone Number: "+rest_phno+"\n"	+"Zomato Link: "+link_to_send+"\n"	+"Cost for two: "+ str(cost_for_two)
+		
 
-	# mail_body ="\n\n\n"+"Name: "+rest_name+"\n"+"Area: "+rest_area+"\n"+"Type: "+rest_type+"\n"+"Phone Number: "+rest_phno+"\n"+"Zomato Link: "+link_to_send+"\n"+"Cost for two: "+str(cost_for_two)
-	
+		try:  
+		    server = smtplib.SMTP('smtp.gmail.com', 587)
+		    server.ehlo()
+		except:  
+		    print 'Something went wrong...'
+		    break
+		#cc = ["hardik_sapra1@yahoo.in","hardik.squarefork@gmail.com"]    
+		fromaddr = 'automationbots2121@gmail.com'
+		#toaddrs  = ["nikita@thebluebeans.com","alsocialvocial@gmail.com"]
+		toaddrs  = ["hardik_sapra1@yahoo.in","hardik.squarefork@gmail.com"]
+		message_subject = "New Restaurant Found!"
+		username = 'automationbots2121@gmail.com'
+		password = 'asdfmnbv'
+		server = smtplib.SMTP('smtp.gmail.com:587')
+		server.starttls()
+		#toaddrs = [toaddrs] + cc   
 
-	# try:  
-	#     server = smtplib.SMTP('smtp.gmail.com', 587)
-	#     server.ehlo()
-	# except:  
-	#     print 'Something went wrong...'
+		server.login(username,password)
+		#cc = ["nikita@thebluebeans.com","alsocialvocial@gmail.com"]
+		for email in toaddrs:
+			msg = ("From: %s\r\n" % fromaddr
+		        + "To: %s\r\n" % email
+		        #+ "BCC: %s\r\n" % ",".join(cc)
+		        + "Subject: %s\r\n" % message_subject
+		        + "\r\n" 
+		        + mail_body)
+			
+			server.sendmail(fromaddr, email, msg)
+			print "mail sub part sent to %s" % email
+		server.quit()	
 
-	# fromaddr = 'automationbots2121@gmail.com'
-	# toaddrs  = 'hardik.squarefork@gmail.com'
-	# msg = mail_body
-	# username = 'automationbots2121@gmail.com'
-	# password = 'asdfmnbv'
-	# server = smtplib.SMTP('smtp.gmail.com:587')
-	# server.starttls()
-	# server.login(username,password)
-	# server.sendmail(fromaddr, toaddrs, msg)
-	# server.quit()	
+		print "MAIL SENT"
+		mail_sent +=1
+		print "MAILS SENT TILL NOW! " +str(mail_sent) 
+		print "BROKEN LINKS TILL NOW! " + str(broken_links)
 
-	print "MAIL SENT"
-	mail_sent +=1
-	print "MAILS SENT TILL NOW! " +str(mail_sent) 
-	# except: 
-	# 	pass
+		restaurants_done_file.write(link_to_send+"\n")
+		restaurants_done_file.flush()
+		# except: 
+		# 	pass
+	except Exception as e:
+		print "Some Prblem Occurred!"	
+		print(e)
 
 print this_run_new_links	
